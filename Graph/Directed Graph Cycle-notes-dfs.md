@@ -1,0 +1,318 @@
+## Problem: Detect Cycle in Directed Graph using DFS
+
+* https://www.geeksforgeeks.org/problems/detect-cycle-in-a-directed-graph/1
+
+**Problem Statement**:
+
+Ek directed graph diya hai, jisme `V` vertices aur edges hain, represented as an adjacency list. Humein check karna hai ki graph mein cycle hai ya nahi. Cycle ka matlab ek aisa path jo same node pe wapas aaye.
+
+**Breakdown**:
+
+- **Input**:
+    - `V`: Number of vertices (0 to V-1).
+    - `adj[]`: Adjacency list where `adj[i]` contains all neighbors of vertex `i`.
+- **Output**:
+    - `true` agar cycle hai, else `false`.
+- **What We Need to Do**: DFS use karke check karna hai ki koi node dobara visit hoti hai current path mein ya nahi.
+- **Why is This a Problem?**: Cycle detection important hai for problems like deadlock detection, course scheduling, etc.
+- **Hinglish**: Bhai, ek graph hai jisme arrows ek taraf jaate hain. Humein dekna hai ki koi path aisa hai jo wapas same node pe aaye, matlab cycle ho.
+
+**Constraints**:
+
+- `1 <= V <= 10^4` (vertices).
+- Edges can be any valid directed connections.
+- Graph can be disconnected.
+
+**Examples**:
+
+- Input: `V = 4`, `adj = [[1], [2], [0, 3], []]`
+    - Output: `true`
+    - Explanation: 0 → 1 → 2 → 0 forms a cycle.
+- Input: `V = 3`, `adj = [[1], [2], []]`
+    - Output: `false`
+    - Explanation: No cycle, just a path 0 → 1 → 2.
+- Input: `V = 2`, `adj = [[1], [0]]`
+    - Output: `true`
+    - Explanation: 0 → 1 → 0 is a cycle.
+
+**Key Definitions**:
+
+- **Directed Graph**: Graph jisme edges ek direction mein hote hain (arrows).
+- **Cycle**: Ek path jo shuru aur end same node pe kare.
+- **DFS**: Depth-First Search, jisme hum ek node se start karke uske saare paths explore karte hain.
+- **Hinglish**: Graph mein ek node se shuru karke uske saare raste dekhte hain, agar koi node dobara aaye current path mein, to cycle hai.
+
+**Why This is a Graph Question?**:
+
+- Yeh problem graph ke structure pe based hai, jahan vertices aur directed edges hain.
+- Cycle detection ek classic graph problem hai, jo DFS ya BFS se solve hota hai.
+- Directed graph mein cycle check karna tricky hai kyunki undirected se alag logic chahiye (parent ignore nahi karte, balki current path track karte hain).
+- **Hinglish**: Bhai, yeh graph ka sawal hai kyunki nodes aur arrows ka structure hai, aur hume path track karke cycle dhundna hai.
+
+---
+
+### Concept: What, Why, How
+
+**What**:
+
+- Humein ek directed graph mein check karna hai ki cycle exist karta hai ya nahi.
+- Cycle tab hota hai jab ek node se start karke wapas usi node pe pohoch jayein through directed edges.
+
+**Why**:
+
+- Cycle detection bohot important hai:
+    - **Course Scheduling**: Agar courses ke prerequisites mein cycle hai, to complete nahi kar sakte.
+    - **Deadlock Detection**: Operating systems mein processes ke dependencies mein cycle deadlock banata hai.
+    - **Topological Sort**: Cycle ho to topological sort possible nahi hai.
+- **Hinglish**: Bhai, yeh check karna zaroori hai kyunki real-life mein scheduling ya deadlock jaise problems solve karne ke liye cycle dhundna padta hai.
+
+**How**:
+
+- DFS use karenge:
+    - Ek `visited` array rakho to track karo ki node visit hui ya nahi.
+    - Ek `recStack` array rakho to track karo ki node current DFS path mein hai ya nahi.
+    - Agar DFS ke dauraan koi node milti hai jo already `recStack` mein hai, matlab cycle hai.
+- **Hinglish**: DFS se ek node se shuru karo, uske neighbors dekho. Agar koi neighbor already current path mein hai, to cycle mil gaya.
+
+---
+
+### Intuition
+
+- Directed graph mein cycle tab banta hai jab ek node se shuru karke wapas usi node pe aayein.
+- DFS ke saath hum ek node se saare paths explore karte hain. Agar koi node dobara milti hai jo current DFS path mein hai (`recStack` mein true hai), to cycle hai.
+- **Key Insight**: `visited` array batata hai ki node kabhi visit hui ya nahi, lekin `recStack` batata hai ki node abhi ke path mein hai ya nahi. Yeh difference directed graph mein cycle detect karne ke liye critical hai.
+- **Hinglish**: Bhai, soch, ek rasta chalu hai, agar usi raste mein koi node dobara aaye, to matlab wo loop bana raha hai. `recStack` usi loop ko catch karta hai.
+
+---
+
+### Algorithm
+
+1. Ek `visited` array banao to track visited nodes.
+2. Ek `recStack` array banao to track current DFS path.
+3. Har unvisited node ke liye:
+    - DFS call karo.
+    - DFS mein:
+        - Current node ko `visited` aur `recStack` mein true mark karo.
+        - Uske saare neighbors ke liye:
+            - Agar neighbor unvisited hai, to uspe DFS call karo.
+            - Agar neighbor visited hai aur `recStack` mein bhi hai, to cycle mil gaya (return `true`).
+        - DFS khatam hone ke baad current node ko `recStack` se hatao (false karo).
+4. Agar koi DFS call `true` return kare, to cycle hai. Else, `false`.
+5. **Hinglish**: Har node se DFS chala, agar koi neighbor already path mein hai, to cycle pakad liya. Nahi to path khatam karke aage badho.
+
+---
+
+### Pseudocode
+
+```cpp
+function isCyclic(V, adj):
+    visited = array of size V, all false
+    recStack = array of size V, all false
+    for i from 0 to V-1:
+        if not visited[i]:
+            if dfsCycle(i, adj, visited, recStack):
+                return true
+    return false
+
+function dfsCycle(node, adj, visited, recStack):
+    visited[node] = true
+    recStack[node] = true
+    for each neighbor in adj[node]:
+        if not visited[neighbor]:
+            if dfsCycle(neighbor, adj, visited, recStack):
+                return true
+        else if recStack[neighbor]:
+            return true
+    recStack[node] = false
+    return false
+
+```
+
+---
+
+### Code (Using Teacher’s Code with Comments and Naming)
+
+Tere teacher ke code ko use kar raha hu, aur comments aur variable names clear rakhta hu jaisa unhone kiya hai. Thodi si formatting improve karunga for clarity, par logic same rahega.
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+  public:
+    // DFS Helper Function to detect cycle starting from a node
+    // node      : current vertex being visited
+    // adj       : adjacency list of the graph
+    // visited   : keeps track of visited nodes
+    // recStack  : keeps track of nodes in current DFS path
+    bool dfsCycle(int node, vector<vector<int>>& adj, vector<bool> &visited, vector<bool> &recStack) {
+        // Mark current node as visited
+        visited[node] = true;
+        // Mark current node in recursion stack (current DFS path)
+        recStack[node] = true;
+
+        // Visit all neighbors of the current node
+        for (int neighbor : adj[node]) {
+            // If neighbor is not visited, explore it recursively
+            if (!visited[neighbor]) {
+                if (dfsCycle(neighbor, adj, visited, recStack))
+                    return true; // Cycle found in deeper DFS
+            }
+            // If neighbor is visited and still in recursion stack → back edge → cycle
+            else if (recStack[neighbor]) {
+                return true; 
+            }
+        }
+
+        // Remove current node from recursion stack before returning
+        recStack[node] = false;
+
+        return false; // No cycle found from this path
+    }
+
+    // Main function to detect cycle in a directed graph
+    // V      : number of vertices
+    // edges  : list of directed edges [[u1,v1],[u2,v2],...]
+    bool isCyclic(int V, vector<vector<int>> &edges) {
+        // Step 1: Build adjacency list from edge list
+        vector<vector<int>> adj(V);
+        for (auto &e : edges) {
+            int u = e[0], v = e[1];
+            adj[u].push_back(v);   // Add directed edge u -> v
+        }
+
+        // Step 2: Initialize visited and recursion stack arrays
+        vector<bool> visited(V, false);
+        vector<bool> recStack(V, false);
+
+        // Step 3: Check for cycles starting from all unvisited nodes
+        // This ensures disconnected components are also checked
+        for (int i = 0; i < V; i++) {
+            if (!visited[i]) {
+                if (dfsCycle(i, adj, visited, recStack))
+                    return true; // Cycle detected
+            }
+        }
+
+        return false; // No cycle found in the graph
+    }
+};
+
+int main() {
+    int V = 4;
+
+    // Example graph edges: 0->1, 1->2, 2->0 (cycle), 2->3
+    vector<vector<int>> edges = {
+        {0,1}, {1,2}, {2,0}, {2,3}
+    };
+
+    Solution sol;
+    if (sol.isCyclic(V, edges))
+        cout << "Cycle Detected\n";
+    else
+        cout << "No Cycle\n";
+
+    return 0;
+
+
+```
+
+**Improvements Suggested**:
+
+- Code already clean hai, lekin maine comments aur variable names ko aur beginner-friendly banaya (e.g., `neigh` ko `neighbor` kiya for clarity).
+- Agar tu chahe to `vector<bool>` ke bajaye `vector<int>` use kar sakte hain for consistency, kyunki some compilers `vector<bool>` ke saath optimize karte hain jo tricky ho sakta hai.
+- Main mein test cases aur add kar sakta hu for practice, bol agar chahiye.
+- **Hinglish**: Bhai, code solid hai, bas thodi comments aur clear naming se samajhne mein aur maza aayega.
+
+---
+
+### Dry Run (Tabular Format)
+
+**Example Graph**:
+
+- `V = 4`
+- Adjacency List:
+    
+    ```
+    0: [1]
+    1: [2]
+    2: [0, 3]
+    3: []
+    
+    ```
+    
+- This has a cycle: 0 → 1 → 2 → 0.
+
+| Step | Node | Visited Array | RecStack Array | Action |
+| --- | --- | --- | --- | --- |
+| 1 | 0 | [T, F, F, F] | [T, F, F, F] | Start DFS from node 0, mark visited[0]=true, recStack[0]=true |
+| 2 | 1 | [T, T, F, F] | [T, T, F, F] | Explore neighbor 1, mark visited[1]=true, recStack[1]=true |
+| 3 | 2 | [T, T, T, F] | [T, T, T, F] | Explore neighbor 2, mark visited[2]=true, recStack[2]=true |
+| 4 | 0 | [T, T, T, F] | [T, T, T, F] | Neighbor 0 is in recStack[0]=true → CYCLE DETECTED, return true |
+| 5 | - | - | - | Backtrack, return true to main, stop |
+
+**Hinglish Explanation**:
+
+- Step 1: Node 0 se shuru kiya, visited aur recStack mein true kiya.
+- Step 2: 0 ka neighbor 1, uspe gaya, visited aur recStack update kiya.
+- Step 3: 1 ka neighbor 2, uspe gaya, same process.
+- Step 4: 2 ka neighbor 0, yeh already recStack mein hai, matlab cycle mil gaya!
+- Step 5: True return karke stop.
+
+**Dry Run for No-Cycle Case**:
+
+- Graph: `V = 3`, `adj = [[1], [2], []]` (0 → 1 → 2, no cycle).
+
+| Step | Node | Visited Array | RecStack Array | Action |
+| --- | --- | --- | --- | --- |
+| 1 | 0 | [T, F, F] | [T, F, F] | Start DFS from 0, mark visited[0]=true, recStack[0]=true |
+| 2 | 1 | [T, T, F] | [T, T, F] | Explore neighbor 1, mark visited[1]=true, recStack[1]=true |
+| 3 | 2 | [T, T, T] | [T, T, T] | Explore neighbor 2, mark visited[2]=true, recStack[2]=true |
+| 4 | - | [T, T, T] | [T, T, F] | No neighbors for 2, set recStack[2]=false, backtrack |
+| 5 | - | [T, T, T] | [T, F, F] | Backtrack to 1, set recStack[1]=false |
+| 6 | - | [T, T, T] | [F, F, F] | Backtrack to 0, set recStack[0]=false, no cycle |
+| 7 | - | - | - | All nodes visited, return false |
+
+---
+
+### Time Complexity (TC)
+
+- **DFS**: Har node aur edge ek baar visit hota hai.
+    - Nodes: `O(V)`
+    - Edges: `O(E)`
+    - Total: `O(V + E)`
+- **Loop in `isCyclic`**: Har node ke liye DFS call, but only unvisited nodes, so `O(V)`.
+- **Final TC**: `O(V + E)`.
+- **Hinglish**: Bhai, har node aur edge ek baar dekha, to time V + E hai.
+
+### Space Complexity (SC)
+
+- **Visited Array**: `O(V)`
+- **RecStack Array**: `O(V)`
+- **Recursion Stack**: DFS ke liye max depth `O(V)` ho sakta hai.
+- **Final SC**: `O(V)` (ignoring adjacency list input).
+- **Hinglish**: Do arrays aur recursion stack ke wajah se space V ke around hai.
+
+---
+
+### Key Points for Interview
+
+- **Why DFS?**: Simple aur intuitive, current path track karke cycle detect karta hai.
+- **Directed vs Undirected**: Directed mein `recStack` use karte hain kyunki parent wala logic nahi chalta.
+- **Edge Cases**:
+    - Empty graph (`V=0`): No cycle.
+    - Single node with self-loop: Cycle.
+    - Disconnected components: Loop se handle hota hai.
+- **Hinglish**: Interview mein pehle intuition samjhao, phir `recStack` ka role clear karo, aur code dry run karke dikhana na bhoolo.
+
+---
+
+### Additional Notes for Beginners
+
+- **Why This Works**: `recStack` ensures ki sirf current path ke nodes check hote hain, jo directed cycle detect karne ke liye perfect hai.
+- **Hinglish**: Bhai, yeh `recStack` wala funda directed graph ke liye game-changer hai, undirected mein nahi chalta yeh.
+- **Practice Cases**:
+    - `V=2`, `adj=[[1], [0]]` → `true` (cycle).
+    - `V=3`, `adj=[[1], [], [1]]` → `false` (no cycle).
+- **Improvement Idea**: Agar tu BFS se yeh karna chahe (Kahn’s algorithm), to bol, main uske liye bhi notes bana dunga.
+- **Common Mistake**: Undirected graph wala logic (parent check) yaha mat lagao, warna galat answer aayega.

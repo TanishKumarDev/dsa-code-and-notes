@@ -1,0 +1,314 @@
+## Problem: Detect Cycle in Undirected Graph using BFS
+
+**Problem Statement**:
+
+* https://www.geeksforgeeks.org/problems/detect-cycle-in-an-undirected-graph/1
+
+Ek undirected graph diya hai, jisme `V` vertices aur edges hain, represented as an adjacency list. Humein check karna hai ki graph mein cycle hai ya nahi. Cycle ka matlab ek path jo same node pe wapas aaye.
+
+**Breakdown**:
+
+- **Input**:
+    - `V`: Number of vertices (0 to V-1).
+    - `adj[]`: Adjacency list jisme `adj[i]` mein vertex `i` ke saare neighbors hain.
+- **Output**:
+    - `true` agar cycle hai, else `false`.
+- **What We Need to Do**: BFS use karke check karna hai ki koi node dobara visit hoti hai jo parent na ho, matlab cycle hai.
+- **Why is This a Problem?**: Cycle detection important hai for problems like graph connectivity, spanning trees, aur real-world applications jaise network loop detection.
+- **Hinglish**: Bhai, ek graph hai jisme edges dono taraf jaate hain. Humein dekna hai ki koi path loop banata hai ya nahi, BFS se.
+
+**Constraints**:
+
+- `1 <= V <= 10^4` (vertices).
+- Edges are undirected (bidirectional).
+- Graph can be disconnected (multiple components).
+
+**Examples**:
+
+- Input: `V = 5`, `adj = [[1,2], [0,3], [0,3,4], [1,2,4], [2,3]]`
+    - Output: `true`
+    - Explanation: 1 → 2 → 3 → 1 forms a cycle.
+- Input: `V = 3`, `adj = [[1], [0,2], [1]]`
+    - Output: `false`
+    - Explanation: No cycle, just a tree-like structure.
+- Input: `V = 4`, `adj = [[1], [0,2,3], [1,3], [1,2]]`
+    - Output: `true`
+    - Explanation: 1 → 2 → 3 → 1 is a cycle.
+
+**Key Definitions**:
+
+- **Undirected Graph**: Graph jisme edges bidirectional hote hain (no arrows, dono taraf ja sakte hain).
+- **Cycle**: Ek path jo shuru aur end same node pe kare.
+- **BFS**: Breadth-First Search, jisme hum queue use karke level-by-level nodes explore karte hain.
+- **Hinglish**: Graph mein dono taraf raste hain, aur BFS se hum ek node se shuru karke uske saare neighbors level-wise dekhte hain.
+
+**Why This is a Graph Question?**:
+
+- Yeh problem graph ke structure pe based hai, jahan vertices aur undirected edges hain.
+- Cycle detection ek fundamental graph problem hai, jo BFS ya DFS se solve hota hai.
+- Undirected graph mein cycle detect karna thoda alag hai kyunki hume parent node ignore karna padta hai, warna false positive cycle detect ho sakta hai.
+- **Hinglish**: Bhai, yeh graph ka sawal hai kyunki nodes aur edges ka structure hai, aur hume BFS se loop (cycle) dhundna hai.
+
+---
+
+### Concept: What, Why, How
+
+**What**:
+
+- Humein ek undirected graph mein check karna hai ki cycle exist karta hai ya nahi.
+- Cycle tab hota hai jab ek node se shuru karke wapas usi node pe aayein, lekin parent node ke through nahi.
+
+**Why**:
+
+- Cycle detection ka bohot use hai:
+    - **Spanning Trees**: Minimum spanning tree banane ke liye cycle nahi chahiye.
+    - **Network Design**: Loops avoid karne ke liye cycle detection zaroori hai.
+    - **Graph Properties**: Cycle ka presence graph ke properties jaise bipartite ya tree define karta hai.
+- **Hinglish**: Bhai, cycle check karna zaroori hai kyunki networks mein loops nahi chahiye, aur algorithms jaise Kruskal’s ke liye cycle detect karna padta hai.
+
+**How**:
+
+- BFS use karenge:
+    - Ek `visited` array rakho to track karo ki node visit hui ya nahi.
+    - Ek queue rakho jisme node aur uska parent store karenge (pair bana ke).
+    - Har node ke neighbors check karo:
+        - Agar neighbor visited nahi hai, to queue mein daal do aur parent set karo.
+        - Agar neighbor visited hai aur parent nahi hai, to cycle hai.
+- **Hinglish**: BFS mein queue se nodes level-wise dekhte hain, aur parent track karke check karte hain ki koi visited node dobara mila to cycle hai.
+
+---
+
+### Intuition
+
+- Undirected graph mein cycle tab banta hai jab ek node se shuru karke wapas usi node pe ya kisi visited node pe pohoch jayein, lekin parent ke through nahi.
+- BFS mein hum queue use karke nodes ko level-wise explore karte hain. Har node ke liye uske parent ko track karna zaroori hai kyunki undirected graph mein edge dono taraf hota hai, to parent wapas aayega naturally, lekin yeh cycle nahi hai.
+- **Key Insight**: Agar koi neighbor already visited hai aur wo parent nahi hai, to matlab ek cycle hai kyunki hum kisi alternate path se wapas usi node pe pohoch gaye.
+- **Hinglish**: Bhai, soch, BFS se hum ek node se shuru karte hain, uske neighbors dekhte hain. Agar koi neighbor pehle se visited hai aur parent nahi, to loop ban gaya, cycle mil gaya!
+
+---
+
+### Algorithm
+
+1. Ek `visited` array banao to track visited nodes.
+2. Har unvisited node ke liye:
+    - BFS call karo.
+    - BFS mein:
+        - Ek queue banao jo `{node, parent}` pairs store kare.
+        - Starting node ko queue mein daal do with parent = -1, aur visited mark karo.
+        - Jab tak queue empty nahi hoti:
+            - Queue se front node aur uska parent pop karo.
+            - Us node ke saare neighbors ke liye:
+                - Agar neighbor visited nahi hai, to queue mein daal do aur visited mark karo, parent set karo.
+                - Agar neighbor visited hai aur parent nahi hai, to cycle hai (return `true`).
+3. Agar koi BFS call `true` return kare, to cycle hai. Else, `false`.
+4. **Hinglish**: Har node se BFS chala, queue mein node aur parent daal. Neighbor check karo, agar visited hai aur parent nahi, to cycle hai. Warna aage badho.
+
+---
+
+### Pseudocode
+
+```cpp
+function isCyclic(V, adj):
+    visited = array of size V, all false
+    for i from 0 to V-1:
+        if not visited[i]:
+            if bfsCycle(i, adj, visited):
+                return true
+    return false
+
+function bfsCycle(start, adj, visited):
+    queue = empty queue of {node, parent} pairs
+    queue.push({start, -1})
+    visited[start] = true
+    while queue is not empty:
+        {node, parent} = queue.pop()
+        for each neighbor in adj[node]:
+            if not visited[neighbor]:
+                queue.push({neighbor, node})
+                visited[neighbor] = true
+            else if neighbor != parent:
+                return true
+    return false
+
+```
+
+---
+
+### Code (Using Teacher’s Style with Comments and Naming)
+
+Tere teacher ke style mein code likh raha hu, with clear comments aur variable names jo unke lecture ke hisaab se samajh aayein. Thodi si formatting improve karunga for clarity, par logic same rahega.
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    // BFS helper to detect cycle in undirected graph starting from 'start'
+    bool bfsCycle(int start, vector<vector<int>>& adj, vector<bool>& visited) {
+        // Queue stores {node, parent} pairs
+        queue<pair<int,int>> q;
+        visited[start] = true;
+        q.push({start, -1}); // Root node has no parent
+
+        while(!q.empty()) {
+            int node = q.front().first;
+            int parent = q.front().second;
+            q.pop();
+
+            // Visit all neighbors
+            for(int neighbor : adj[node]) {
+                if(!visited[neighbor]) {
+                    visited[neighbor] = true;
+                    q.push({neighbor, node});
+                }
+                else if(neighbor != parent) {
+                    // Visited neighbor that is not parent → cycle
+                    return true;
+                }
+            }
+        }
+        return false; // No cycle in this component
+    }
+
+    // Main function to detect cycle in undirected graph
+    bool isCycle(int V, vector<vector<int>>& edges) {
+        // Step 1: Build adjacency list from edges
+        vector<vector<int>> adj(V);
+        for(auto &e : edges) {
+            int u = e[0], v = e[1];
+            adj[u].push_back(v);
+            adj[v].push_back(u); // undirected
+        }
+
+        // Step 2: Track visited nodes
+        vector<bool> visited(V, false);
+
+        // Step 3: Check all components
+        for(int i = 0; i < V; i++) {
+            if(!visited[i]) {
+                if(bfsCycle(i, adj, visited))
+                    return true; // Cycle detected
+            }
+        }
+
+        return false; // No cycle in any component
+    }
+};
+
+// Example usage
+int main() {
+    Solution sol;
+
+    int V = 4;
+    vector<vector<int>> edges = {{0,1},{0,2},{1,2},{2,3}};
+
+    if(sol.isCycle(V, edges))
+        cout << "Cycle Detected\n";
+    else
+        cout << "No Cycle\n";
+
+    return 0;
+}
+
+```
+
+**Improvements Suggested**:
+
+- Code already clean hai, lekin maine `pair<int, int>` use kiya queue mein for clarity (node aur parent store karne ke liye).
+- Teacher ne `q.pop()` ke baad `auto [node, parent]` use nahi kiya, par yeh C++17 feature readability badhata hai, to maine add kiya.
+- Agar tu chahe to `vector<bool>` ke bajaye `vector<int>` use kar sakte hain, kyunki `vector<bool>` ke saath compiler optimizations kabhi-kabhi issue dete hain.
+- Main mein multiple test cases add kar sakta hu for practice, bol agar chahiye.
+- **Hinglish**: Bhai, code solid hai, bas thodi modern C++ styling se aur clear ho gaya. Agar aur test cases chahiye to bolna.
+
+---
+
+### Dry Run (Tabular Format)
+
+**Example Graph**:
+
+- `V = 5`
+- Adjacency List (undirected, so bidirectional edges):
+    
+    ```
+    0: [1, 2]
+    1: [0, 3]
+    2: [0, 3, 4]
+    3: [1, 2, 4]
+    4: [2, 3]
+    
+    ```
+    
+- This has a cycle: 1 → 2 → 3 → 1.
+
+| Step | Queue (node, parent) | Visited Array | Action |
+| --- | --- | --- | --- |
+| 1 | {(0, -1)} | [T, F, F, F, F] | Start BFS from 0, push {0, -1}, mark visited[0]=true |
+| 2 | {(1, 0), (2, 0)} | [T, T, T, F, F] | Pop {0, -1}, neighbors: 1 (unvisited, push {1, 0}, mark visited[1]=true), 2 (unvisited, push {2, 0}, mark visited[2]=true) |
+| 3 | {(2, 0), (3, 1)} | [T, T, T, T, F] | Pop {1, 0}, neighbors: 0 (parent, ignore), 3 (unvisited, push {3, 1}, mark visited[3]=true) |
+| 4 | {(3, 1), (3, 2), (4, 2)} | [T, T, T, T, T] | Pop {2, 0}, neighbors: 0 (parent, ignore), 3 (visited, not parent, CYCLE DETECTED), stop (no need to process 3, 4) |
+
+**Hinglish Explanation**:
+
+- Step 1: Node 0 se shuru kiya, queue mein {0, -1} daala, visited[0]=true.
+- Step 2: 0 ke neighbors 1 aur 2, dono unvisited, to queue mein {1, 0} aur {2, 0} daale, visited[1]=true, visited[2]=true.
+- Step 3: Queue se {1, 0} pop kiya, 1 ke neighbors 0 (parent, ignore) aur 3 (unvisited, push {3, 1}, visited[3]=true).
+- Step 4: Queue se {2, 0} pop kiya, 2 ke neighbors 0 (parent, ignore), 3 (visited, not parent, cycle mil gaya!).
+- Step 5: True return karke stop.
+
+**Dry Run for No-Cycle Case**:
+
+- Graph: `V = 3`, `adj = [[1], [0, 2], [1]]` (tree-like, no cycle).
+
+| Step | Queue (node, parent) | Visited Array | Action |
+| --- | --- | --- | --- |
+| 1 | {(0, -1)} | [T, F, F] | Start BFS from 0, push {0, -1}, mark visited[0]=true |
+| 2 | {(1, 0)} | [T, T, F] | Pop {0, -1}, neighbor: 1 (unvisited, push {1, 0}, mark visited[1]=true) |
+| 3 | {(2, 1)} | [T, T, T] | Pop {1, 0}, neighbors: 0 (parent, ignore), 2 (unvisited, push {2, 1}, mark visited[2]=true) |
+| 4 | {} | [T, T, T] | Pop {2, 1}, neighbor: 1 (parent, ignore), queue empty, no cycle |
+| 5 | - | - | Return false |
+
+---
+
+### Time Complexity (TC)
+
+- **BFS**: Har node aur edge ek baar visit hota hai.
+    - Nodes: `O(V)`
+    - Edges: `O(E)` (undirected graph mein each edge dono direction mein count hota hai).
+    - Total: `O(V + E)`
+- **Loop in `isCyclic`**: Har node ke liye BFS call, but only unvisited nodes, so `O(V)`.
+- **Final TC**: `O(V + E)`.
+- **Hinglish**: Bhai, har node aur edge ek baar dekha, to time V + E hai.
+
+### Space Complexity (SC)
+
+- **Visited Array**: `O(V)`
+- **Queue**: Worst case mein saare nodes queue mein ho sakte hain, so `O(V)`.
+- **Final SC**: `O(V)` (ignoring adjacency list input).
+- **Hinglish**: Visited array aur queue ke wajah se space V ke around hai.
+
+---
+
+### Key Points for Interview
+
+- **Why BFS?**: Level-wise exploration aur parent tracking se cycle detect karna easy hai.
+- **Undirected vs Directed**: Undirected mein parent check karna zaroori hai, warna har visited node cycle jaisa lagega.
+- **Edge Cases**:
+    - Empty graph (`V=0`): No cycle.
+    - Single node with no edges: No cycle.
+    - Disconnected components: Loop se handle hota hai.
+- **Hinglish**: Interview mein BFS ka funda samjhao, parent ka role clear karo, aur dry run se dikhana ki cycle kaise pakda jata hai.
+
+---
+
+### Additional Notes for Beginners
+
+- **Why This Works**: BFS level-wise nodes dekhta hai, aur parent tracking se false positives (parent wala edge) avoid hota hai.
+- **Hinglish**: Bhai, BFS se level-wise check karte hain, aur parent ko ignore karke cycle pakadte hain, simple aur powerful hai.
+- **Practice Cases**:
+    - `V=3`, `adj=[[1], [0,2], [1]]` → `false` (no cycle).
+    - `V=4`, `adj=[[1], [0,2,3], [1,3], [1,2]]` → `true` (cycle).
+- **Improvement Idea**: Agar tu DFS se yeh karna chahe ya directed graph ke liye BFS (Kahn’s algorithm), to bol, main notes bana dunga.
+- **Common Mistake**: Parent check bhool jao to har visited neighbor cycle jaisa lagega, so parent tracking critical hai.
+
+---

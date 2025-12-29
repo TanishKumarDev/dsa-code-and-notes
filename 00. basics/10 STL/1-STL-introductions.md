@@ -192,7 +192,7 @@ STL is a powerful part of modern C++ that provides:
 * Efficient algorithms for data processing
 * Flexible iterators for access
 
-
+```md
 C++ STL
 │
 ├── Containers
@@ -234,3 +234,4 @@ C++ STL
     ├── begin() / end()
     ├── rbegin() / rend()
     └── iterator types
+```
